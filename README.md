@@ -73,7 +73,7 @@ uvicorn app.main:app --reload
 ```
 ### Эндроинты сервиса
 ```
-POST /api/questions/ - добавление уникальных вопросов с сайта https://jservice.io
+POST /api/question/ - добавление уникальных вопросов с сайта https://jservice.io
 тело запроса:
     {"questions_num": integer}, где questions_num - количество уникальных вопросов, которые надо получить (не более 100)
 ```
