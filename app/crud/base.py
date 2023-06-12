@@ -1,15 +1,15 @@
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
 from fastapi.encoders import jsonable_encoder
+
+from app.core.base import Base
 from pydantic import BaseModel as BaseSchema
 from sqlalchemy import Column, select
 from sqlalchemy.ext.asyncio import AsyncScalarResult, AsyncSession
 
-from app.core.base import Base
-
-Model = TypeVar('Model', bound=Base)
-CreateSchema = TypeVar('CreateSchema', bound=BaseSchema)
-UpdateSchema = TypeVar('UpdateSchema', bound=BaseSchema)
+Model = TypeVar("Model", bound=Base)
+CreateSchema = TypeVar("CreateSchema", bound=BaseSchema)
+UpdateSchema = TypeVar("UpdateSchema", bound=BaseSchema)
 
 
 class CRUDBase(Generic[Model, CreateSchema, UpdateSchema]):
@@ -18,21 +18,14 @@ class CRUDBase(Generic[Model, CreateSchema, UpdateSchema]):
         self.model = model
 
     async def get_by_attribute(
-            self,
-            session: AsyncSession,
-            attribute: Union[str, Column],
-            value: Any
+        self, session: AsyncSession, attribute: Union[str, Column], value: Any
     ) -> AsyncScalarResult:
         if isinstance(attribute, str):
             attribute = getattr(self.model, attribute)
         statement = select(self.model).where(attribute == value)
         return await session.scalars(statement)
 
-    async def get(
-        self,
-        session: AsyncSession,
-        id: Any
-    ) -> Optional[Model]:
+    async def get(self, session: AsyncSession, id: Any) -> Optional[Model]:
         return (await self.get_by_attribute(session, self.model.id, id)).one()
 
     async def get_multi(
@@ -49,11 +42,7 @@ class CRUDBase(Generic[Model, CreateSchema, UpdateSchema]):
             statement = statement.limit(limit)
         return (await session.scalars(statement)).all()
 
-    async def save(
-        self,
-        session: AsyncSession,
-        obj: Model
-    ) -> Model:
+    async def save(self, session: AsyncSession, obj: Model) -> Model:
         session.add(obj)
         await session.commit()
         await session.refresh(obj)
@@ -87,12 +76,7 @@ class CRUDBase(Generic[Model, CreateSchema, UpdateSchema]):
                 setattr(db_obj, field, update_data[field])
         return await self.save(session, db_obj)
 
-    async def remove(
-        self,
-        session: AsyncSession,
-        *,
-        db_obj: Model
-    ) -> Model:
+    async def remove(self, session: AsyncSession, *, db_obj: Model) -> Model:
         await session.delete(db_obj)
         await session.commit()
         return db_obj

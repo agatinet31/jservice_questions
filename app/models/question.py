@@ -1,10 +1,10 @@
-from sqlalchemy import Column, Integer, String, DateTime
-
 from app.core.db import Base
+from sqlalchemy import Column, DateTime, Integer, String
 
 
 class Question(Base):
     """Модель вопроса."""
+
     answer = Column(String(250), nullable=False)
     question = Column(String(250), unique=True, nullable=False)
     value = Column(Integer)
@@ -15,8 +15,4 @@ class Question(Base):
 
     def __repr__(self):
         """Возвращает информацию по вопросу."""
-        return (
-            f'<ID {self.id}> '
-            f'{self.question} => '
-            f'{self.answer}'
-        )
+        return f"<ID {self.id}> " f"{self.question} => " f"{self.answer}"

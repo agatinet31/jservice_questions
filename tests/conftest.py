@@ -11,33 +11,36 @@ try:
     from app.main import app
 except (NameError, ImportError):
     raise AssertionError(
-        'Не обнаружен объект приложения `app`.'
-        'Проверьте и поправьте: он должен быть доступен в модуле `app.main`.',
+        "Не обнаружен объект приложения `app`."
+        "Проверьте и поправьте: он должен быть доступен в модуле `app.main`.",
     )
 
 try:
     from app.core.db import Base, get_async_session
 except (NameError, ImportError):
     raise AssertionError(
-        'Не обнаружены объекты `Base, get_async_session`. '
-        'Проверьте и поправьте: они должны быть доступны в модуле `app.core.db`.',
+        "Не обнаружены объекты `Base, get_async_session`. "
+        "Проверьте и поправьте: они должны быть доступны в модуле `app.core.db`.",
     )
 
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 
 pytest_plugins = [
-    'fixtures.data',
+    "fixtures.data",
 ]
 
-TEST_DB = BASE_DIR / 'test.db'
-SQLALCHEMY_DATABASE_URL = f'sqlite+aiosqlite:///{str(TEST_DB)}'
+TEST_DB = BASE_DIR / "test.db"
+SQLALCHEMY_DATABASE_URL = f"sqlite+aiosqlite:///{str(TEST_DB)}"
 engine = create_async_engine(
     SQLALCHEMY_DATABASE_URL,
     connect_args={"check_same_thread": False},
 )
 TestingSessionLocal = sessionmaker(
-    class_=AsyncSession, autocommit=False, autoflush=False, bind=engine,
+    class_=AsyncSession,
+    autocommit=False,
+    autoflush=False,
+    bind=engine,
 )
 
 
@@ -57,6 +60,6 @@ async def init_db():
 
 @pytest.fixture
 def mixer():
-    mixer_engine = create_engine(f'sqlite:///{str(TEST_DB)}')
+    mixer_engine = create_engine(f"sqlite:///{str(TEST_DB)}")
     session = sessionmaker(bind=mixer_engine)
     return _mixer(session=session(), commit=True)

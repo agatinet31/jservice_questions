@@ -1,1 +1,6 @@
-from .question import QuestionCreate, QuestionDBShema, ManyQuestionParseShema, QuestionUpdate # noqa
+from .question import (  # noqa
+    ManyQuestionParseShema,
+    QuestionCreate,
+    QuestionDBShema,
+    QuestionUpdate,
+)

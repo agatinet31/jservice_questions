@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class QuestionBase(BaseModel):
     """Класс схемы вопроса."""
+
     id: int
     answer: str
     question: str
@@ -18,6 +19,7 @@ class QuestionBase(BaseModel):
 
 class ManyQuestionParseShema(QuestionBase):
     """Класс схемы с распарсенной информацией по списку вопросов."""
+
     pass
 
 

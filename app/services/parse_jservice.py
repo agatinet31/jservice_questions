@@ -2,32 +2,34 @@ from json import JSONDecodeError
 from typing import Any, Dict
 
 import httpx
+from app.core.config import settings
+from app.exceptions import (
+    QuestionIncorrectStructureError,
+    QuestionRequestError,
+)
+from app.schemas import ManyQuestionParseShema
 from pydantic import ValidationError
 
-from app.core.config import settings
-from app.exceptions import QuestionIncorrectStructureError, QuestionRequestError
-from app.schemas import ManyQuestionParseShema
-
 REQUEST_HEADERS = {
-    'Accept': "*/*",
-    'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    "Accept": "*/*",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
 }
 
 
 def get_jservice_query_params(questions_num: int) -> Dict[str, Any]:
-    return {
-        'count': questions_num
-    }
+    return {"count": questions_num}
 
 
-async def parse_jservice_random_questions(questions_num: int) -> ManyQuestionParseShema:
+async def parse_jservice_random_questions(
+    questions_num: int,
+) -> ManyQuestionParseShema:
     """Возвращает с хостинга https://jservice.io распарсиные данные."""
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(
                 settings.JSERVICE_URL,
                 headers=REQUEST_HEADERS,
-                params=get_jservice_query_params(questions_num)
+                params=get_jservice_query_params(questions_num),
             )
             response.raise_for_status()
             return ManyQuestionParseShema(**response.json())
