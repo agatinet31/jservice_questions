@@ -7,7 +7,7 @@ from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
 class Settings(BaseSettings):
     """Класс конфигурации сервиса."""
 
-    APP_TITLE: str = "Парсинг товаров wildberries"
+    APP_TITLE: str = "Сервис уникальных вопросов jservice.io"
     DESCRIPTION: str = (
         "Сервис парсит информацию по вопросам "
         "с сайта https://jservice.io и сохраняет их в БД"

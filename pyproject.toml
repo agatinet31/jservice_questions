@@ -30,10 +30,12 @@ authors = ["Andrey Labutin"]
 [tool.poetry.dependencies]
 python = "^3.10.1"
 fastapi = "^0.97.0"
-sqlalchemy = "^2.0.16"
-psycopg2-binary = "^2.9.6"
-uvicorn = "^0.22.0"
+uvicorn = {extras = ["standard"], version = "^0.22.0"}
 alembic = "^1.11.1"
+asyncpg = "^0.27.0"
+sqlalchemy = "^2.0.16"
+pydantic = {extras = ["dotenv"], version = "^1.10.9"}
+httpx = "^0.24.1"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.15.0"
@@ -41,7 +43,9 @@ black = "^23.3.0"
 isort = "^5.9.3"
 flake8 = "^6.0.0"
 ipython = "^8.10.0"
-pytest-pythonpath = "0.7.4"
+mixer = "^7.2.2"
+sqlalchemy-stubs = "^0.4"
+pytest-asyncio = "^0.21.0"
 pytest-sugar = "^0.9.4"
 pytest-deadfixtures = "^2.2.1"
 

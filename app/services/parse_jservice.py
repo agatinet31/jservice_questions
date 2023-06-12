@@ -5,6 +5,7 @@ import httpx
 from app.core.config import settings
 from app.exceptions import (
     QuestionIncorrectStructureError,
+    QuestionLenError,
     QuestionRequestError,
 )
 from app.schemas import ManyQuestionParseShema
@@ -32,7 +33,9 @@ async def parse_jservice_random_questions(
                 params=get_jservice_query_params(questions_num),
             )
             response.raise_for_status()
-            return ManyQuestionParseShema(**response.json())
+            if len(results := response.json()) < questions_num:
+                raise QuestionLenError
+            return ManyQuestionParseShema(results=results)
     except httpx.HTTPError as exc:
         raise QuestionRequestError(
             settings.JSERVICE_URL, questions_num

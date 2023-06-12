@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -17,10 +17,10 @@ class QuestionBase(BaseModel):
     category_id: int
 
 
-class ManyQuestionParseShema(QuestionBase):
+class ManyQuestionParseShema(BaseModel):
     """Класс схемы с распарсенной информацией по списку вопросов."""
 
-    pass
+    results: List[QuestionBase]
 
 
 class QuestionCreate(QuestionBase):

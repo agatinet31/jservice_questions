@@ -1,13 +1,9 @@
-import asyncio
-from typing import List
+from typing import Annotated, List, Dict
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.logger import logger
 
-from app.api.question import (
-    get_from_db_question_by_id,
-    get_unique_jservice_questions,
-)
+from app.api.depends import get_from_db_question_by_id, get_jservice_questions
 from app.core.db import get_async_session
 from app.crud.question import question_crud
 from app.models import Question
@@ -39,48 +35,43 @@ async def get_all_questions(
 
 
 @router.get(
-    "/{question_id}",
+    "/{id}",
     response_model=QuestionDBShema,
     response_model_exclude_none=True,
 )
-async def get_info_by_product_id(
+async def get_info_by_question_id(
     question: Question = Depends(get_from_db_question_by_id),
 ):
-    """Получает информацию по товару."""
+    """Получает информацию по вопросу."""
     return question
 
 
 @router.post(
     "/",
-    response_model=QuestionDBShema,
-    response_model_exclude_none=True,
+    response_model=QuestionDBShema | Dict,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_many_unique_questions(
-    many_unique_questions: ManyQuestionParseShema = Depends(
-        get_unique_jservice_questions
-    ),
+    questions_num: Annotated[
+        int, Query(title="The ID of the item to get", gt=0, le=100)
+    ],
     session: AsyncSession = Depends(get_async_session),
 ):
-    """Добавление номенклатуры товара."""
+    """Добавление новых уникальных вопросов."""
     try:
-        async_calls = [get_wb_product_info_by_id(id) for id in product_ids]
-        parse_products: List[QuestionParseShema] = await asyncio.gather(
-            *async_calls
-        )
-        if parse_products:
-            success_product = map(
-                lambda product: Question(**product), parse_products
+        many_questions = await get_jservice_questions(questions_num)
+        if many_questions:
+            questions_data = map(
+                lambda data: Question(**data),
+                many_questions["results"]
             )
             async with session.begin():
-                session.add_all(*success_product)
-
-        return await product_crud.create(session, obj_in=parse_wb_product)
+                session.add_all(*questions_data)
+        # return await product_crud.create(session, obj_in=parse_wb_product)
+        return {}
     except SQLAlchemyError:
         error_message = (
-            "Внутреняя ошибка сервиса при добавление нового "
-            f"товара: ID = {parse_wb_product.id}, "
-            f"наименование = `{parse_wb_product.name}`!"
+            "Внутреняя ошибка сервиса при добавление новых вопросов!"
         )
         logger.exception(error_message)
         raise HTTPException(
@@ -89,8 +80,8 @@ async def create_many_unique_questions(
         )
 
 
-@router.delete("/{question_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_product(
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_question(
     question: Question = Depends(get_from_db_question_by_id),
     session: AsyncSession = Depends(get_async_session),
 ):
@@ -99,7 +90,8 @@ async def delete_product(
         await question_crud.remove(session, db_obj=question)
     except SQLAlchemyError:
         error_message = (
-            "Внутреняя ошибка сервиса. " "Удаление вопроса не произведено!"
+            "Внутреняя ошибка сервиса. "
+            "Удаление вопроса не произведено!"
         )
         logger.exception(error_message)
         raise HTTPException(

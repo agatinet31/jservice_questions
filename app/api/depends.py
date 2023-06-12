@@ -15,18 +15,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def get_from_db_question_by_id(
-    question_id: int, session: AsyncSession = Depends(get_async_session)
+    id: int, session: AsyncSession = Depends(get_async_session)
 ) -> Question:
     """Возвращает информацию по вопросу для валидного идентификатора."""
     try:
-        return await question_crud.get(session, question_id)
+        return await question_crud.get(session, id)
     except NoResultFound:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Вопрос с идентификатором {question_id} не найден в БД!",
+            detail=f"Вопрос с идентификатором {id} не найден в БД!",
         )
     except SQLAlchemyError:
-        error_message = "Внутреняя ошибка сервиса при получении информации по товару из БД!"
+        error_message = (
+            "Внутреняя ошибка сервиса "
+            "при получении информации из БД!"
+        )
         logger.exception(error_message)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -34,8 +37,8 @@ async def get_from_db_question_by_id(
         )
 
 
-async def get_unique_jservice_questions(
-    questions_num: int, session: AsyncSession = Depends(get_async_session)
+async def get_jservice_questions(
+    questions_num: int,
 ) -> ManyQuestionParseShema:
     """
     Возвращает распарсиные данные

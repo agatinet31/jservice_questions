@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 
-from app.api.endpoints import product_router
+from app.api.endpoints import question_router
 
 main_router = APIRouter()
 
 main_router.include_router(
-    product_router, prefix="/product", tags=["Products"]
+    question_router, prefix="/question", tags=["Questions"]
 )
