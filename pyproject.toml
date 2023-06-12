@@ -1,0 +1,50 @@
+[tool.black]
+line-length = 79
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+    | venv
+    | alembic
+    | tests
+  )/
+)
+'''
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 79
+known_fastapi=["fastapi","dotenv"]
+known_thirdparty=["app","api","core","crud"]
+sections=["FUTURE","STDLIB","FASTAPI","THIRDPARTY","FIRSTPARTY","LOCALFOLDER"]
+
+[tool.poetry]
+name = "jservice_questions"
+version = "0.1.0"
+description = "Serivice for unique questions from https://jservice.io"
+authors = ["Andrey Labutin"]
+
+[tool.poetry.dependencies]
+python = "^3.10.1"
+fastapi = "^0.97.0"
+sqlalchemy = "^2.0.16"
+psycopg2-binary = "^2.9.6"
+uvicorn = "^0.22.0"
+alembic = "^1.11.1"
+
+[tool.poetry.dev-dependencies]
+pre-commit = "^2.15.0"
+black = "^23.3.0"
+isort = "^5.9.3"
+flake8 = "^6.0.0"
+ipython = "^8.10.0"
+pytest-pythonpath = "0.7.4"
+pytest-sugar = "^0.9.4"
+pytest-deadfixtures = "^2.2.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
