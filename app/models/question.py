@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, Column, Integer, String
+from sqlalchemy import TIMESTAMP, Column, Integer, Text
 
 from app.core.db import Base
 
@@ -6,8 +6,8 @@ from app.core.db import Base
 class Question(Base):
     """Модель вопроса."""
 
-    answer = Column(String(250), nullable=False)
-    question = Column(String(250), unique=True, nullable=False)
+    answer = Column(Text, nullable=False)
+    question = Column(Text, unique=True, nullable=False)
     value = Column(Integer)
     airdate = Column(type_=TIMESTAMP(timezone=True))
     created_at = Column(type_=TIMESTAMP(timezone=True), nullable=False)

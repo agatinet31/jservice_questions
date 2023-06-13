@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -10,11 +10,11 @@ class QuestionBase(BaseModel):
     id: int
     answer: str
     question: str
-    value: int
-    airdate: datetime
+    value: Optional[int] = None
+    airdate: Optional[datetime] = None
     created_at: datetime
-    updated_at: datetime
-    category_id: int
+    updated_at: Optional[datetime] = None
+    category_id: Optional[int] = None
 
 
 class ManyQuestionParseShema(BaseModel):
