@@ -52,7 +52,6 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     class Config:
-        case_sensitive = True
         env_file = ".env"
 
 
