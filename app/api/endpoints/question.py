@@ -1,7 +1,8 @@
-from typing import Annotated, Dict, List
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.logger import logger
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -48,7 +49,7 @@ async def get_info_by_question_id(
 
 @router.post(
     "/",
-    response_model=QuestionDBShema | Dict,
+    # response_model=QuestionDBShema | Dict,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_many_unique_questions(
@@ -62,11 +63,15 @@ async def create_many_unique_questions(
         many_questions = await get_jservice_questions(questions_num)
         if many_questions:
             questions_data = map(
-                lambda data: Question(**data), many_questions["results"]
+                lambda data: data.dict(), many_questions.results
+            )
+            insert_stmt = insert(Question).values(list(questions_data))
+            do_nothing_stmt = insert_stmt.on_conflict_do_nothing(
+                index_elements=["question"]
             )
             async with session.begin():
-                session.add_all(*questions_data)
-        # return await product_crud.create(session, obj_in=parse_wb_product)
+                results = await session.execute(do_nothing_stmt)
+            return results
         return {}
     except SQLAlchemyError:
         error_message = (
