@@ -1,13 +1,13 @@
-from typing import Annotated, List, Dict
+from typing import Annotated, Dict, List
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.logger import logger
 
 from app.api.depends import get_from_db_question_by_id, get_jservice_questions
 from app.core.db import get_async_session
 from app.crud.question import question_crud
 from app.models import Question
-from app.schemas import ManyQuestionParseShema, QuestionDBShema
+from app.schemas import QuestionDBShema
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -62,12 +62,10 @@ async def create_many_unique_questions(
         many_questions = await get_jservice_questions(questions_num)
         if many_questions:
             questions_data = map(
-                lambda data: Question(**data),
-                many_questions["results"]
+                lambda data: Question(**data), many_questions["results"]
             )
             async with session.begin():
                 session.add_all(*questions_data)
-        # return await product_crud.create(session, obj_in=parse_wb_product)
         return {}
     except SQLAlchemyError:
         error_message = (
@@ -90,8 +88,7 @@ async def delete_question(
         await question_crud.remove(session, db_obj=question)
     except SQLAlchemyError:
         error_message = (
-            "Внутреняя ошибка сервиса. "
-            "Удаление вопроса не произведено!"
+            "Внутреняя ошибка сервиса. " "Удаление вопроса не произведено!"
         )
         logger.exception(error_message)
         raise HTTPException(
