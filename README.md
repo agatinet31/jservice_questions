@@ -36,7 +36,7 @@
     ```
 3. Сделайте миграции
     ```
-    python manage.py migrate
+    alembic upgrade head
     ```
 4. Установите pre-commit хуки
     ```
@@ -55,21 +55,15 @@ POSTGRES_PASSWORD=masterkey
 POSTGRES_SERVER=localhost
 POSTGRES_PORT=5432
 POSTGRES_DB=js
+PGADMIN_DEFAULT_EMAIL: str = "admin@local.host"
+PGADMIN_DEFAULT_PASSWORD: str = ""
+PGADMIN_LISTEN_PORT: str = "8080"
 SECRET=^SUPER@SECRET#
 CORS_ORIGINS=["http://localhost:8000"]
 ```
 В корневом каталоге проекта создайте образы и разверните контейнеры Docker:
 ```
 docker-compose up -d --build
-```
-Применить миграции:
-```
-alembic upgrade head
-```
-
-Запустить сервис:
-```
-uvicorn app.main:app --reload
 ```
 ### Эндроинты сервиса
 ```

@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = ""
     POSTGRES_DB: str = "js"
+    PGADMIN_DEFAULT_EMAIL: str = "admin@local.host"
+    PGADMIN_DEFAULT_PASSWORD: str = ""
+    PGADMIN_LISTEN_PORT: str = "8080"
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
@@ -49,6 +52,7 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     class Config:
+        case_sensitive = True
         env_file = ".env"
 
 
