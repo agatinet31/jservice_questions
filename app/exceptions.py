@@ -25,16 +25,11 @@ class QuestionIncorrectStructureError(QuestionRequestError):
     """Класс исключения при неверной структуре данных."""
 
     def __init__(self, *args):
-        super().__init__(
-            *args, message="Получена неверная структура данных!"
-        )
+        super().__init__(*args, message="Получена неверная структура данных!")
 
 
 class QuestionLenError(QuestionRequestError):
-    """
-    Класс исключения при получение неверного
-    количества данных с хостинге.
-    """
+    """Класс исключения при получение неверного количества данных."""
 
     def __init__(self, *args):
         super().__init__(*args, message="Получены не все данные с хостинга!")

@@ -17,7 +17,7 @@ include_trailing_comma = true
 force_grid_wrap = 0
 use_parentheses = true
 line_length = 79
-known_fastapi=["fastapi","dotenv"]
+known_fastapi=["fastapi","dotenv","sqlalchemy","httpx"]
 known_thirdparty=["app","api","core","crud"]
 sections=["FUTURE","STDLIB","FASTAPI","THIRDPARTY","FIRSTPARTY","LOCALFOLDER"]
 

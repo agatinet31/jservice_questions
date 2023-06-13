@@ -1,5 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.logger import logger
+from sqlalchemy.exc import NoResultFound, SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
 from app.crud import question_crud
@@ -10,8 +12,6 @@ from app.exceptions import (
 from app.models import Question
 from app.schemas import ManyQuestionParseShema
 from app.services.parse_jservice import parse_jservice_random_questions
-from sqlalchemy.exc import NoResultFound, SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def get_from_db_question_by_id(
@@ -27,8 +27,7 @@ async def get_from_db_question_by_id(
         )
     except SQLAlchemyError:
         error_message = (
-            "Внутреняя ошибка сервиса "
-            "при получении информации из БД!"
+            "Внутреняя ошибка сервиса " "при получении информации из БД!"
         )
         logger.exception(error_message)
         raise HTTPException(
@@ -40,10 +39,7 @@ async def get_from_db_question_by_id(
 async def get_jservice_questions(
     questions_num: int,
 ) -> ManyQuestionParseShema:
-    """
-    Возвращает распарсиные данные
-    для questions_num вопросов с хостинга https://jservice.io/.
-    """
+    """Возвращает распарсиные данные с хостинга https://jservice.io/."""
     try:
         return await parse_jservice_random_questions(questions_num)
     except (QuestionRequestError, QuestionIncorrectStructureError):

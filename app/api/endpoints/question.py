@@ -2,14 +2,15 @@ from typing import Annotated, Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.logger import logger
+from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.depends import get_from_db_question_by_id, get_jservice_questions
 from app.core.db import get_async_session
 from app.crud.question import question_crud
 from app.models import Question
 from app.schemas import QuestionDBShema
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
@@ -59,14 +60,23 @@ async def create_many_unique_questions(
 ):
     """Добавление новых уникальных вопросов."""
     try:
-        many_questions = await get_jservice_questions(questions_num)
-        if many_questions:
+        while questions_num > 0:
+            many_questions = await get_jservice_questions(questions_num)
             questions_data = map(
-                lambda data: Question(**data), many_questions["results"]
+                lambda data: data.dict(), many_questions.results
             )
+            insert_stmt = insert(Question).values(list(questions_data))
+            do_nothing_stmt = insert_stmt.on_conflict_do_nothing(
+                index_elements=["question"]
+            ).returning(Question)
             async with session.begin():
-                session.add_all(*questions_data)
-        return {}
+                success_insert = (await session.scalars(do_nothing_stmt)).all()
+            questions_num -= len(success_insert)
+            try:
+                pred_obj = success_insert[-2]
+            except IndexError:
+                pred_obj = {}
+        return pred_obj
     except SQLAlchemyError:
         error_message = (
             "Внутреняя ошибка сервиса при добавление новых вопросов!"

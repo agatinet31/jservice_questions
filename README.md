@@ -68,7 +68,7 @@ docker-compose up -d --build
 ### Эндроинты сервиса
 ```
 POST /api/question/ - добавление уникальных вопросов с сайта https://jservice.io
-тело запроса:
+query параметр запроса:
     {"questions_num": integer}, где questions_num - количество уникальных вопросов, которые надо получить (не более 100)
 ```
 ### Документация API
