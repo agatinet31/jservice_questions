@@ -36,7 +36,6 @@ async def parse_jservice_random_questions(
             response.raise_for_status()
             if len(results := response.json()) < questions_num:
                 raise QuestionLenError
-            print(results)
             return ManyQuestionParseShema(results=results)
     except httpx.HTTPError as exc:
         raise QuestionRequestError(

@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.logger import logger
@@ -49,7 +49,7 @@ async def get_info_by_question_id(
 
 @router.post(
     "/",
-    # response_model=QuestionDBShema | Dict,
+    response_model=QuestionDBShema | Dict,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_many_unique_questions(
@@ -60,19 +60,23 @@ async def create_many_unique_questions(
 ):
     """Добавление новых уникальных вопросов."""
     try:
-        many_questions = await get_jservice_questions(questions_num)
-        if many_questions:
+        while questions_num > 0:
+            many_questions = await get_jservice_questions(questions_num)
             questions_data = map(
                 lambda data: data.dict(), many_questions.results
             )
             insert_stmt = insert(Question).values(list(questions_data))
             do_nothing_stmt = insert_stmt.on_conflict_do_nothing(
                 index_elements=["question"]
-            )
+            ).returning(Question)
             async with session.begin():
-                results = await session.execute(do_nothing_stmt)
-            return results
-        return {}
+                success_insert = (await session.scalars(do_nothing_stmt)).all()
+            questions_num -= len(success_insert)
+            try:
+                pred_obj = success_insert[-2]
+            except IndexError:
+                pred_obj = {}
+        return pred_obj
     except SQLAlchemyError:
         error_message = (
             "Внутреняя ошибка сервиса при добавление новых вопросов!"
