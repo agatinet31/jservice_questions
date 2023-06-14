@@ -51,7 +51,6 @@ async def get_info_by_question_id(
 
 @router.post(
     "/",
-    # response_model=QuestionDBShema,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_many_unique_questions(
@@ -79,16 +78,13 @@ async def create_many_unique_questions(
             async with session.begin():
                 success_insert = (await session.scalars(do_nothing_stmt)).all()
                 questions_num -= len(success_insert)
-                last_save_obj = success_insert[-1] if success_insert else {}
-            print(last_save_obj)
             request_count += 1
         if questions_num > 0:
             raise QuestionMaxCountRequestError
-        # try:
-        #     pred_obj = success_insert[-2]
-        # except IndexError:
-        #     pred_obj = last_save_obj
-        # return 1
+        try:
+            return success_insert[-2]
+        except IndexError:
+            return {}
     except (SQLAlchemyError, QuestionMaxCountRequestError):
         error_message = (
             "Внутреняя ошибка сервиса при добавление новых вопросов!"
