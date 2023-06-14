@@ -21,6 +21,15 @@ class QuestionRequestError(QuestionError):
         )
 
 
+class QuestionMaxCountRequestError(QuestionRequestError):
+    """Класс исключения превышения количества запросов к сервису."""
+
+    def __init__(self, *args):
+        super().__init__(
+            *args, message="Превышено количество запросов к сервису!"
+        )
+
+
 class QuestionIncorrectStructureError(QuestionRequestError):
     """Класс исключения при неверной структуре данных."""
 

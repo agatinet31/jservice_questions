@@ -27,7 +27,7 @@ async def get_from_db_question_by_id(
         )
     except SQLAlchemyError:
         error_message = (
-            "Внутреняя ошибка сервиса " "при получении информации из БД!"
+            "Внутреняя ошибка сервиса при получении информации из БД!"
         )
         logger.exception(error_message)
         raise HTTPException(

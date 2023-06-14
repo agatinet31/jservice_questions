@@ -1,9 +1,10 @@
 from typing import AsyncGenerator
 
-from app.core.config import settings
 from sqlalchemy import Column, Integer, MetaData
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import as_declarative, declared_attr, sessionmaker
+
+from app.core.config import settings
 
 meta = MetaData(
     naming_convention={

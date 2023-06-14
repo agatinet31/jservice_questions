@@ -1,7 +1,13 @@
 import secrets
 from typing import Any, Dict, List, Optional, Union
 
-from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
+from pydantic import (
+    AnyHttpUrl,
+    BaseSettings,
+    PositiveInt,
+    PostgresDsn,
+    validator,
+)
 
 
 class Settings(BaseSettings):
@@ -25,6 +31,7 @@ class Settings(BaseSettings):
     PGADMIN_DEFAULT_PASSWORD: str = ""
     PGADMIN_LISTEN_PORT: str = "8080"
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
+    MAX_LIMIT_COUNT_FOR_REQUEST: PositiveInt = 1000
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(
