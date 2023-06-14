@@ -31,7 +31,7 @@ class QuestionUpdate(QuestionBase):
     pass
 
 
-class QuestionDBShema(QuestionBase):
+class QuestionDBShema(BaseModel):
     """Класс схемы для выдачи информации по вопросу из БД."""
 
     class Config:

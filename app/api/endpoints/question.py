@@ -1,4 +1,4 @@
-from typing import Annotated, Dict, List
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.logger import logger
@@ -7,8 +7,10 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.depends import get_from_db_question_by_id, get_jservice_questions
+from app.core.config import settings
 from app.core.db import get_async_session
 from app.crud.question import question_crud
+from app.exceptions import QuestionMaxCountRequestError
 from app.models import Question
 from app.schemas import QuestionDBShema
 
@@ -49,7 +51,7 @@ async def get_info_by_question_id(
 
 @router.post(
     "/",
-    response_model=QuestionDBShema | Dict,
+    # response_model=QuestionDBShema,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_many_unique_questions(
@@ -60,7 +62,12 @@ async def create_many_unique_questions(
 ):
     """Добавление новых уникальных вопросов."""
     try:
-        while questions_num > 0:
+        request_count = 0
+        success_insert = None
+        while (
+            questions_num > 0
+            and request_count < settings.MAX_LIMIT_COUNT_FOR_REQUEST
+        ):
             many_questions = await get_jservice_questions(questions_num)
             questions_data = map(
                 lambda data: data.dict(), many_questions.results
@@ -71,13 +78,18 @@ async def create_many_unique_questions(
             ).returning(Question)
             async with session.begin():
                 success_insert = (await session.scalars(do_nothing_stmt)).all()
-            questions_num -= len(success_insert)
-            try:
-                pred_obj = success_insert[-2]
-            except IndexError:
-                pred_obj = {}
-        return pred_obj
-    except SQLAlchemyError:
+                questions_num -= len(success_insert)
+                last_save_obj = success_insert[-1] if success_insert else {}
+            print(last_save_obj)
+            request_count += 1
+        if questions_num > 0:
+            raise QuestionMaxCountRequestError
+        # try:
+        #     pred_obj = success_insert[-2]
+        # except IndexError:
+        #     pred_obj = last_save_obj
+        # return 1
+    except (SQLAlchemyError, QuestionMaxCountRequestError):
         error_message = (
             "Внутреняя ошибка сервиса при добавление новых вопросов!"
         )
