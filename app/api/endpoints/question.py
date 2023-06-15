@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.logger import logger
@@ -51,6 +51,7 @@ async def get_info_by_question_id(
 
 @router.post(
     "/",
+    response_model=QuestionDBShema | Dict,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_many_unique_questions(
@@ -62,7 +63,7 @@ async def create_many_unique_questions(
     """Добавление новых уникальных вопросов."""
     try:
         request_count = 0
-        success_insert = None
+        last_two_obj = []
         while (
             questions_num > 0
             and request_count < settings.MAX_LIMIT_COUNT_FOR_REQUEST
@@ -78,13 +79,14 @@ async def create_many_unique_questions(
             async with session.begin():
                 success_insert = (await session.scalars(do_nothing_stmt)).all()
                 questions_num -= len(success_insert)
+                try:
+                    last_two_obj = success_insert[-2:]
+                except IndexError:
+                    return last_two_obj.append(success_insert)
             request_count += 1
         if questions_num > 0:
             raise QuestionMaxCountRequestError
-        try:
-            return success_insert[-2]
-        except IndexError:
-            return {}
+        return last_two_obj[-2] if len(last_two_obj) > 1 else {}
     except (SQLAlchemyError, QuestionMaxCountRequestError):
         error_message = (
             "Внутреняя ошибка сервиса при добавление новых вопросов!"

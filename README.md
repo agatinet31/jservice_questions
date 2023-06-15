@@ -70,6 +70,18 @@ docker-compose up -d --build
 POST /api/question/ - добавление уникальных вопросов с сайта https://jservice.io
 query параметр запроса:
     {"questions_num": integer}, где questions_num - количество уникальных вопросов, которые надо получить (не более 100)
+
+Пример ответа сервиса для questions_num=3:
+{
+  "id": 72431,
+  "answer": "Juvenile Delinquent",
+  "question": "A J.D., which stands for this type of youth, may come from a broken home -- or just be bored",
+  "value": 300,
+  "airdate": "2001-05-18T23:00:00",
+  "created_at": "2022-12-30T22:09:27.154000",
+  "updated_at": "2022-12-30T22:09:27.154000",
+  "category_id": 6903
+}
 ```
 ### Документация API
 Страница с документацией сервиса будет доступна по адресу:
